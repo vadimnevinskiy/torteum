@@ -19,5 +19,14 @@ class Settings(BaseSettings):
             f"/{self.DB_NAME}"
         )
 
+    @property
+    def database_sync_url(self) -> str:
+        return (
+            f"postgresql+psycopg://"
+            f"{self.DB_USER}:{self.DB_PASSWORD}"
+            f"@{self.DB_HOST}:{self.DB_PORT}"
+            f"/{self.DB_NAME}"
+        )
+
 
 settings = Settings()
