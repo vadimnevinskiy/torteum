@@ -1,6 +1,5 @@
 .idea/
 .venv/
-backend/poetry.lock
 backend/__pycache__/
 
 # Environment variables
