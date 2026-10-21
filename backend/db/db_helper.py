@@ -1,7 +1,7 @@
-from collections import AsyncGenerator
+from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from ..models import Base
-from ..config import settings
+from models import Base
+from config import settings
 
 
 class DatabaseHelper:
@@ -13,7 +13,7 @@ class DatabaseHelper:
             expire_on_commit=False,
         )
 
-    async def get_db(self) -> AsyncGenerator[AsyncSession]:
+    async def get_db(self) -> AsyncGenerator[AsyncSession, None]:
         async with self.session_local() as db:
             yield db
 
