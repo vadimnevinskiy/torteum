@@ -35,10 +35,6 @@ async def create_user(new_user: UserCreate, db: AsyncSession) -> User:
         password_hash=new_user.password_hash,
     )
 
-    print(f"user ========= {user.last_name}")  # None
-    print(f"last_name ========= {new_user.last_name}")  # None
-    print(f"model_dump ========= {new_user.model_dump()}")  # None
-
     user = await crud_users.create_user(user, db)
 
     return user
