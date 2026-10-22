@@ -23,9 +23,9 @@ async def get_user(user_id: int, db: AsyncSession) -> User:
 
 
 async def create_user(new_user: UserCreate, db: AsyncSession) -> User:
-    user = await crud_users.get_user_by_email(email=new_user.email, db=db)
+    check_email = await crud_users.get_user_by_email(email=new_user.email, db=db)
 
-    if user is not None:
+    if check_email is not None:
         raise UserAlreadyExists(email=new_user.email)
 
     user = User(
@@ -41,10 +41,7 @@ async def create_user(new_user: UserCreate, db: AsyncSession) -> User:
 
 
 async def delete_user(user_id: int, db: AsyncSession) -> ResponseMessage:
-    user: User | None = await crud_users.get_user(user_id, db)
-
-    if user is None:
-        raise UserNotFound(user_id=user_id)
+    user: User = await get_user(user_id, db)
 
     response = await crud_users.delete_user(user, db)
 
@@ -60,10 +57,7 @@ async def update_user(
     new_user: UserUpdate,
     db: AsyncSession,
 ) -> User:
-    user: User | None = await crud_users.get_user(user_id, db)
-
-    if user is None:
-        raise UserNotFound(user_id=user_id)
+    user: User = await get_user(user_id, db)
 
     check_email = await crud_users.get_user_by_email(email=new_user.email, db=db)
 
@@ -83,10 +77,7 @@ async def update_user_partial(
     new_user: UserUpdatePartial,
     db: AsyncSession,
 ) -> User:
-    user: User | None = await crud_users.get_user(user_id, db)
-
-    if user is None:
-        raise UserNotFound(user_id=user_id)
+    user: User = await get_user(user_id, db)
 
     check_email = await crud_users.get_user_by_email(email=new_user.email, db=db)
 

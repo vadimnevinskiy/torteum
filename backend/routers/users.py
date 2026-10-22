@@ -1,32 +1,41 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from schemas import UserResponse, UserCreate, UserUpdate, UserUpdatePartial
+from models import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from db import db_helper
-from services import users as crud_users
+from services import users as user_service
 from errors import UserNotFound, UserAlreadyExists
 from dto import ResponseMessage
+from dependencies import get_user_by_id
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @users_router.get("/", response_model=list[UserResponse])
 async def get_users(db: AsyncSession = Depends(db_helper.get_db)) -> list[UserResponse]:
-    users = await crud_users.get_users(db)
+    users = await user_service.get_users(db)
 
     return [UserResponse.model_validate(user) for user in users]
 
 
+# @users_router.get("/{user_id}", response_model=UserResponse)
+# async def get_user(
+#     user_id: int,
+#     db: AsyncSession = Depends(db_helper.get_db),
+# ) -> UserResponse:
+#     try:
+#         user = await crud_users.get_user(user_id, db)
+#     except UserNotFound as exc:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+#
+#     return UserResponse.model_validate(user)
+
+
 @users_router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
-    user_id: int,
-    db: AsyncSession = Depends(db_helper.get_db),
+    user: User = Depends(get_user_by_id),
 ) -> UserResponse:
-    try:
-        user = await crud_users.get_user(user_id, db)
-    except UserNotFound as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
-
     return UserResponse.model_validate(user)
 
 
@@ -36,7 +45,7 @@ async def create_user(
     db: AsyncSession = Depends(db_helper.get_db),
 ) -> UserResponse:
     try:
-        user = await crud_users.create_user(new_user, db)
+        user = await user_service.create_user(new_user, db)
     except UserAlreadyExists as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
 
@@ -49,7 +58,7 @@ async def delete_user(
     db: Annotated[AsyncSession, Depends(db_helper.get_db)],
 ) -> ResponseMessage:
     try:
-        response = await crud_users.delete_user(user_id, db)
+        response = await user_service.delete_user(user_id, db)
     except UserNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc))
 
@@ -63,7 +72,7 @@ async def update_user(
     db: Annotated[AsyncSession, Depends(db_helper.get_db)],
 ) -> UserResponse:
     try:
-        user = await crud_users.update_user(user_id, new_user, db)
+        user = await user_service.update_user(user_id, new_user, db)
     except UserNotFound as exc_not_found:
         raise HTTPException(status_code=404, detail=str(exc_not_found))
     except UserAlreadyExists as exc_already_exists:
@@ -81,7 +90,7 @@ async def update_user_partial(
     db: Annotated[AsyncSession, Depends(db_helper.get_db)],
 ) -> UserResponse:
     try:
-        user = await crud_users.update_user_partial(user_id, new_user, db)
+        user = await user_service.update_user_partial(user_id, new_user, db)
     except UserNotFound as exc_not_found:
         raise HTTPException(status_code=404, detail=str(exc_not_found))
     except UserAlreadyExists as exc_already_exists:
