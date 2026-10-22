@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import UserResponse, UserCreate, UserUpdate
+from schemas import UserResponse, UserCreate, UserUpdate, UserUpdatePartial
 from sqlalchemy.ext.asyncio import AsyncSession
 from db import db_helper
 from services import users as crud_users
@@ -64,6 +64,24 @@ async def update_user(
 ) -> UserResponse:
     try:
         user = await crud_users.update_user(user_id, new_user, db)
+    except UserNotFound as exc_not_found:
+        raise HTTPException(status_code=404, detail=str(exc_not_found))
+    except UserAlreadyExists as exc_already_exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail=str(exc_already_exists)
+        )
+
+    return UserResponse.model_validate(user)
+
+
+@users_router.patch("/{user_id}", response_model=UserResponse)
+async def update_user_partial(
+    user_id: int,
+    new_user: UserUpdatePartial,
+    db: Annotated[AsyncSession, Depends(db_helper.get_db)],
+) -> UserResponse:
+    try:
+        user = await crud_users.update_user_partial(user_id, new_user, db)
     except UserNotFound as exc_not_found:
         raise HTTPException(status_code=404, detail=str(exc_not_found))
     except UserAlreadyExists as exc_already_exists:

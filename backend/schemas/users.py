@@ -23,6 +23,12 @@ class UserUpdate(UserBase):
     pass
 
 
+class UserUpdatePartial(UserBase):
+    first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
+
+
 class UserResponse(UserBase):
     id: int
     created_at: datetime
