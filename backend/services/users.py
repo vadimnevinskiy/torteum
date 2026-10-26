@@ -46,39 +46,18 @@ async def delete_user(user: User, db: AsyncSession) -> ResponseMessage:
     return response
 
 
-# TODO Combine the two functions `update_user` and `user_update_partial`.
-#  https://youtu.be/KWu_RyTKh1s?list=PLYnH8mpFQ4akzzS1D9IHkMuXacb-bD4Cl&t=3985
-
-
 async def update_user(
     user: User,
-    new_user: UserUpdate,
+    new_user: UserUpdate | UserUpdatePartial,
     db: AsyncSession,
+    is_partial_update: bool = False,
 ) -> User:
     check_email = await crud_users.get_user_by_email(email=new_user.email, db=db)
 
     if check_email is not None and check_email.id != user.id:
         raise UserAlreadyExists(email=new_user.email)
 
-    for name, value in new_user.model_dump().items():
-        setattr(user, name, value)
-
-    user = await crud_users.update_user(user, db)
-
-    return user
-
-
-async def update_user_partial(
-    user: User,
-    new_user: UserUpdatePartial,
-    db: AsyncSession,
-) -> User:
-    check_email = await crud_users.get_user_by_email(email=new_user.email, db=db)
-
-    if check_email is not None and check_email.id != user.id:
-        raise UserAlreadyExists(email=new_user.email)
-
-    for name, value in new_user.model_dump(exclude_unset=True).items():
+    for name, value in new_user.model_dump(exclude_unset=is_partial_update).items():
         setattr(user, name, value)
 
     user = await crud_users.update_user(user, db)

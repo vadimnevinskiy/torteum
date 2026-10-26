@@ -24,5 +24,5 @@ class DatabaseHelper:
 
 db_helper = DatabaseHelper(
     async_url=settings.database_async_url,
-    echo=True,
+    echo=False,
 )

@@ -19,19 +19,6 @@ async def get_users(db: AsyncSession = Depends(db_helper.get_db)) -> list[UserRe
     return [UserResponse.model_validate(user) for user in users]
 
 
-# @users_router.get("/{user_id}", response_model=UserResponse)
-# async def get_user(
-#     user_id: int,
-#     db: AsyncSession = Depends(db_helper.get_db),
-# ) -> UserResponse:
-#     try:
-#         user = await crud_users.get_user(user_id, db)
-#     except UserNotFound as exc:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
-#
-#     return UserResponse.model_validate(user)
-
-
 @users_router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user: User = Depends(get_user_by_id),
@@ -73,7 +60,9 @@ async def update_user(
     db: Annotated[AsyncSession, Depends(db_helper.get_db)],
 ) -> UserResponse:
     try:
-        user = await user_service.update_user(user, new_user, db)
+        user = await user_service.update_user(
+            user, new_user, db, is_partial_update=False
+        )
     except UserNotFound as exc_not_found:
         raise HTTPException(status_code=404, detail=str(exc_not_found))
     except UserAlreadyExists as exc_already_exists:
@@ -91,7 +80,9 @@ async def update_user_partial(
     db: Annotated[AsyncSession, Depends(db_helper.get_db)],
 ) -> UserResponse:
     try:
-        user = await user_service.update_user_partial(user, new_user, db)
+        user = await user_service.update_user(
+            user, new_user, db, is_partial_update=True
+        )
     except UserNotFound as exc_not_found:
         raise HTTPException(status_code=404, detail=str(exc_not_found))
     except UserAlreadyExists as exc_already_exists:
