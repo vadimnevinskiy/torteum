@@ -1,11 +1,11 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, EmailStr
 from datetime import datetime
 
 
 class UserBase(BaseModel):
     first_name: str
     last_name: str | None = None
-    email: str
+    email: EmailStr
 
     @field_validator("last_name", mode="before")
     @classmethod
@@ -26,7 +26,7 @@ class UserUpdate(UserBase):
 class UserUpdatePartial(UserBase):
     first_name: str | None = None
     last_name: str | None = None
-    email: str | None = None
+    email: EmailStr | None = None
 
 
 class UserResponse(UserBase):

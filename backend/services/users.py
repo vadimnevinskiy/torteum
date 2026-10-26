@@ -40,9 +40,7 @@ async def create_user(new_user: UserCreate, db: AsyncSession) -> User:
     return user
 
 
-async def delete_user(user_id: int, db: AsyncSession) -> ResponseMessage:
-    user: User = await get_user(user_id, db)
-
+async def delete_user(user: User, db: AsyncSession) -> ResponseMessage:
     response = await crud_users.delete_user(user, db)
 
     return response
@@ -53,12 +51,10 @@ async def delete_user(user_id: int, db: AsyncSession) -> ResponseMessage:
 
 
 async def update_user(
-    user_id: int,
+    user: User,
     new_user: UserUpdate,
     db: AsyncSession,
 ) -> User:
-    user: User = await get_user(user_id, db)
-
     check_email = await crud_users.get_user_by_email(email=new_user.email, db=db)
 
     if check_email is not None and check_email.id != user.id:
@@ -73,12 +69,10 @@ async def update_user(
 
 
 async def update_user_partial(
-    user_id: int,
+    user: User,
     new_user: UserUpdatePartial,
     db: AsyncSession,
 ) -> User:
-    user: User = await get_user(user_id, db)
-
     check_email = await crud_users.get_user_by_email(email=new_user.email, db=db)
 
     if check_email is not None and check_email.id != user.id:
