@@ -2,6 +2,7 @@ from pathlib import Path
 from fastapi import UploadFile, HTTPException
 from config import settings
 from uuid import uuid4
+import aiofiles
 
 
 class ImageHelper:
@@ -14,6 +15,7 @@ class ImageHelper:
 
     async def save_image(self) -> Path:
         extension = Path(self.image.filename or "").suffix.lower()
+        await self.image.seek(0)
 
         if extension not in self.allowed_extension:
             raise HTTPException(
@@ -39,6 +41,10 @@ class ImageHelper:
         file_path = self.image_path / filename
 
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        file_path.write_bytes(content)
+
+        async with aiofiles.open(file_path, mode="wb") as f:
+            await f.write(content)
+
+        # TODO need to check file format with Pillow
 
         return file_path
