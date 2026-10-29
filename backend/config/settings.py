@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     )
 
     @property
-    def avatars_dir(self):
+    def avatars_dir(self) -> Path:
         return self.STATIC_DIR / "avatars"
 
     @property
