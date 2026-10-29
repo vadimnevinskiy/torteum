@@ -1,3 +1,5 @@
+from pathlib import Path
+from fastapi import File, UploadFile
 from collections.abc import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import User
@@ -5,6 +7,8 @@ from repositories import users as crud_users
 from errors import UserNotFound, UserAlreadyExists
 from schemas import UserCreate, UserResponse, UserUpdate, UserUpdatePartial
 from dto import ResponseMessage
+from config import settings
+from util import ImageHelper
 
 
 async def get_users(db: AsyncSession) -> Sequence[User]:
@@ -31,6 +35,7 @@ async def create_user(new_user: UserCreate, db: AsyncSession) -> User:
     user = User(
         first_name=new_user.first_name,
         last_name=new_user.last_name,
+        avatar_url=new_user.avatar_url,
         email=new_user.email,
         password_hash=new_user.password_hash,
     )
@@ -63,3 +68,12 @@ async def update_user(
     user = await crud_users.update_user(user, db)
 
     return user
+
+
+async def upload_avatar(avatar: UploadFile) -> Path:
+    helper = ImageHelper(
+        image=avatar,
+        image_path=settings.avatars_dir,
+    )
+    saved_path = await helper.save_image()
+    return saved_path

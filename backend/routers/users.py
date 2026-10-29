@@ -1,5 +1,6 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from pathlib import Path
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from schemas import UserResponse, UserCreate, UserUpdate, UserUpdatePartial
 from models import User
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +9,7 @@ from services import users as user_service
 from errors import UserNotFound, UserAlreadyExists
 from dto import ResponseMessage
 from dependencies import get_user_by_id
+from config import settings
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -91,3 +93,9 @@ async def update_user_partial(
         )
 
     return UserResponse.model_validate(user)
+
+
+@users_router.post("/{upload_avatar}", response_model=str)
+async def upload_avatar(avatar: UploadFile):
+    result: Path = await user_service.upload_avatar(avatar)
+    return str(result)

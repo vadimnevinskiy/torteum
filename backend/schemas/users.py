@@ -5,6 +5,7 @@ from datetime import datetime
 class UserBase(BaseModel):
     first_name: str
     last_name: str | None = None
+    avatar_url: str | None = None
     email: EmailStr
 
     @field_validator("last_name", mode="before")
@@ -27,6 +28,7 @@ class UserUpdatePartial(UserBase):
     first_name: str | None = None
     last_name: str | None = None
     email: EmailStr | None = None
+    avatar_url: str | None = None
 
 
 class UserResponse(UserBase):
