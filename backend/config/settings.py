@@ -5,6 +5,7 @@ from pathlib import Path
 class Settings(BaseSettings):
     STATIC_DIR: Path = Path("static")
     ALLOWED_IMAGE_EXTENSION: set[str] = {".jpg", ".jpeg", ".png", ".webp"}
+    ALLOWED_FORMAT: set[str] = {"JPEG", "PNG", "WEBP"}
     MAX_IMAGE_SIZE: int = 5 * 1024 * 1024  # 5 MB
 
     DB_USER: str

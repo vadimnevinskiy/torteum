@@ -70,10 +70,10 @@ async def update_user(
     return user
 
 
-async def upload_avatar(avatar: UploadFile) -> Path:
+async def upload_avatar(avatar: UploadFile) -> str:
     helper = ImageHelper(
         image=avatar,
         image_path=settings.avatars_dir,
     )
-    saved_path = await helper.save_image()
-    return saved_path
+    saved_image = await helper.save_image()
+    return saved_image
